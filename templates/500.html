@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>500 — {{ app_name }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { theme: { extend: { colors: { zinc: { 950: '#09090b', 900: '#18181b', 800: '#27272a' } } } } }</script>
+    <style>body { font-family: 'Inter', system-ui, sans-serif; background: #09090b; }</style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-zinc-100">
+    <div class="text-center">
+        <h1 class="text-6xl font-bold text-red-500 mb-3">500</h1>
+        <p class="text-zinc-500 mb-8">Internal server error. Please try again later.</p>
+        <a href="/" class="px-5 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-white text-sm font-medium rounded-lg transition-colors border border-zinc-700">Go Home</a>
+    </div>
+</body>
+</html>

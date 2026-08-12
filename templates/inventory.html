@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory — {{ app_name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zinc: { 950: '#09090b', 900: '#18181b', 800: '#27272a', 700: '#3f3f46', 600: '#52525b', 500: '#71717a', 400: '#a1a1aa' },
+                        accent: '#5865F2'
+                    },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; background: #09090b; }
+        .card { background: #18181b; border: 1px solid #27272a; }
+        .card-hover:hover { border-color: #3f3f46; }
+    </style>
+</head>
+<body class="min-h-screen text-zinc-100">
+    <nav class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-sm sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <span class="font-semibold text-white text-sm tracking-tight">{{ app_name }}</span>
+            </div>
+            <div class="flex items-center gap-5">
+                <div class="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-lg bg-zinc-900 border border-zinc-800">
+                    <svg class="w-3.5 h-3.5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/></svg>
+                    <span class="text-xs text-yellow-500 font-medium">{{ "{:,}".format(user.coins) }} coins</span>
+                </div>
+                <a href="/dashboard" class="text-xs text-zinc-400 hover:text-white transition-colors">Dashboard</a>
+                <a href="/shop" class="text-xs text-accent hover:text-accent/80 transition-colors">Shop</a>
+                <a href="/logout" class="text-xs text-red-400 hover:text-red-300 transition-colors">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-6 py-8">
+        <div class="mb-8 flex items-end justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-white tracking-tight">Inventory</h1>
+                <p class="text-zinc-500 text-sm mt-1">{{ total_items }} items total • {{ avatar_count }} avatars, {{ banner_count }} banners</p>
+            </div>
+            <a href="/shop" class="px-4 py-2 bg-accent hover:bg-accent/90 text-white text-sm font-medium rounded-lg transition-colors">Browse Shop</a>
+        </div>
+
+        {% if inventory %}
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {% for item in inventory %}
+            <div class="card rounded-xl overflow-hidden card-hover transition-colors">
+                <div class="relative">
+                    <img src="{{ url_for('static', filename=item.local_file_path) }}" alt="{{ item.item_type }}" class="w-full h-36 object-cover" loading="lazy" onerror="this.style.display='none'">
+                    <span class="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[10px] text-white uppercase tracking-wider">{{ item.item_type }}</span>
+                </div>
+                <div class="p-3">
+                    <p class="text-[10px] text-zinc-600">{{ item.purchased_at }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="card rounded-xl p-12 text-center">
+            <div class="w-12 h-12 mx-auto rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center mb-3">
+                <svg class="w-6 h-6 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+            </div>
+            <p class="text-zinc-500 text-sm">Your inventory is empty.</p>
+            <p class="text-zinc-600 text-xs mt-1">Visit the <a href="/shop" class="text-accent hover:underline">shop</a> to make your first purchase.</p>
+        </div>
+        {% endif %}
+    </main>
+</body>
+</html>

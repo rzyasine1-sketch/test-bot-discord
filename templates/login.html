@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — {{ app_name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zinc: { 950: '#09090b', 900: '#18181b', 800: '#27272a', 700: '#3f3f46', 600: '#52525b' },
+                        accent: '#5865F2'
+                    },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; background: #09090b; }
+        .pin-box {
+            width: 3.5rem; height: 4rem;
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 0.75rem;
+            color: #fafafa;
+            font-size: 1.5rem; font-weight: 600;
+            text-align: center;
+            text-transform: uppercase;
+            transition: all 0.15s ease;
+            caret-color: #5865F2;
+        }
+        .pin-box:focus {
+            outline: none;
+            border-color: #5865F2;
+            box-shadow: 0 0 0 3px rgba(88,101,242,0.15);
+            background: #1f1f23;
+        }
+        .pin-box::placeholder { color: #52525b; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-zinc-100">
+    <div class="w-full max-w-md px-6">
+        <div class="text-center mb-10">
+            <div class="w-14 h-14 mx-auto rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-5">
+                <svg class="w-7 h-7 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <h1 class="text-2xl font-bold text-white tracking-tight">Authentication</h1>
+            <p class="text-zinc-500 mt-2 text-sm">Enter the 6-character code from your Discord DM.</p>
+        </div>
+
+        {% if error %}
+        <div class="mb-6 p-4 rounded-xl bg-red-500/5 border border-red-500/20 text-red-400 text-sm">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <div>
+                    <p class="font-medium">{{ error }}</p>
+                    <p class="text-red-400/70 mt-1">Request a new code with <code class="bg-red-500/10 px-1.5 py-0.5 rounded text-xs">/login</code> in Discord.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/login" id="loginForm" class="space-y-6">
+            <div>
+                <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-3">Login Code</label>
+                <div class="flex justify-center gap-2" id="pinContainer">
+                    <input type="text" maxlength="1" class="pin-box" autocomplete="off" inputmode="text">
+                    <input type="text" maxlength="1" class="pin-box" autocomplete="off" inputmode="text">
+                    <input type="text" maxlength="1" class="pin-box" autocomplete="off" inputmode="text">
+                    <input type="text" maxlength="1" class="pin-box" autocomplete="off" inputmode="text">
+                    <input type="text" maxlength="1" class="pin-box" autocomplete="off" inputmode="text">
+                    <input type="text" maxlength="1" class="pin-box" autocomplete="off" inputmode="text">
+                </div>
+                <input type="hidden" name="code" id="codeField">
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full py-3 bg-accent hover:bg-accent/90 text-white font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Verify & Login
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <a href="/" class="text-sm text-zinc-600 hover:text-zinc-400 transition-colors">← Back to home</a>
+        </div>
+    </div>
+
+    <script>
+        const boxes = document.querySelectorAll('.pin-box');
+        const codeField = document.getElementById('codeField');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('loginForm');
+
+        function updateCode() {
+            const code = Array.from(boxes).map(b => b.value).join('').toUpperCase();
+            codeField.value = code;
+            submitBtn.disabled = code.length !== 6;
+        }
+
+        boxes.forEach((box, idx) => {
+            box.addEventListener('input', (e) => {
+                box.value = box.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                updateCode();
+                if (box.value && idx < boxes.length - 1) boxes[idx + 1].focus();
+            });
+            box.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !box.value && idx > 0) boxes[idx - 1].focus();
+                if (e.key === 'Enter' && codeField.value.length === 6) form.submit();
+            });
+            box.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+                paste.split('').forEach((ch, i) => { if (boxes[i]) boxes[i].value = ch; });
+                updateCode();
+                const next = boxes[Math.min(paste.length, boxes.length - 1)];
+                if (next) next.focus();
+            });
+        });
+
+        updateCode();
+        if (boxes[0]) boxes[0].focus();
+    </script>
+</body>
+</html>

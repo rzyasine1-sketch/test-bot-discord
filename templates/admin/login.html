@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — {{ app_name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        zinc: { 950: '#09090b', 900: '#18181b', 800: '#27272a', 700: '#3f3f46', 600: '#52525b' },
+                        accent: '#5865F2'
+                    },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>body { font-family: 'Inter', system-ui, sans-serif; background: #09090b; }</style>
+</head>
+<body class="min-h-screen flex items-center justify-center text-zinc-100">
+    <div class="w-full max-w-sm px-6">
+        <div class="text-center mb-8">
+            <div class="w-12 h-12 mx-auto rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4">
+                <svg class="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <h1 class="text-xl font-bold text-white">Admin Access</h1>
+            <p class="text-zinc-500 text-sm mt-1">Restricted area. Authorized personnel only.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="mb-4 p-3 rounded-lg border text-sm {% if category == 'error' %}bg-red-500/5 border-red-500/20 text-red-400{% else %}bg-green-500/5 border-green-500/20 text-green-400{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">Username</label>
+                <input type="text" name="username" required class="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-red-500/50 transition-colors">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1.5">Password</label>
+                <input type="password" name="password" required class="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:border-red-500/50 transition-colors">
+            </div>
+            <button type="submit" class="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white text-sm font-semibold rounded-lg transition-colors">
+                Access Dashboard
+            </button>
+        </form>
+        <div class="text-center mt-6">
+            <a href="/" class="text-xs text-zinc-600 hover:text-zinc-400 transition-colors">← Back to site</a>
+        </div>
+    </div>
+</body>
+</html>
