@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Login — Discord Bot Dashboard{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10">
+    <!-- Main Welcome Note -->
+    <div class="sketchy-box hard-shadow paper-yellow p-10 tilt-2 relative text-center">
+        <div class="tape"></div>
+        
+        <h1 class="hand-heading text-6xl font-bold mb-4 text-white">Welcome Back!</h1>
+        <p class="text-2xl mb-8 leading-relaxed text-white">
+            Access your dashboard using a secure one-time code from Discord.
+        </p>
+
+        <!-- Step Cards -->
+        <div class="space-y-6 text-left">
+            <div class="sketchy-box hard-shadow paper-blue p-6 tilt-1 relative">
+                <div class="absolute -top-3 -right-3 w-10 h-10 bg-[#f87171] sketchy-box flex items-center justify-center text-white font-bold text-xl tilt-3">1</div>
+                <h2 class="hand-heading text-2xl font-bold mb-2">Open Discord</h2>
+                <p class="text-lg">Type <span class="inline-block bg-white text-black px-3 py-1 sketchy-box tilt-3 font-bold">/login</span> in any server where the bot is present.</p>            </div>
+
+            <div class="sketchy-box hard-shadow paper-green p-6 tilt-3 relative">
+                <div class="absolute -top-3 -right-3 w-10 h-10 bg-[#f87171] sketchy-box flex items-center justify-center text-white font-bold text-xl tilt-1">2</div>
+                <h2 class="hand-heading text-2xl font-bold mb-2">Check Your DMs</h2>
+                <p class="text-lg">The bot will send you a magic link with a 6-digit PIN code. It expires in 5 minutes!</p>
+            </div>
+
+            <div class="sketchy-box hard-shadow paper-pink p-6 tilt-1 relative">
+                <div class="absolute -top-3 -right-3 w-10 h-10 bg-[#f87171] sketchy-box flex items-center justify-center text-white font-bold text-xl tilt-2">3</div>
+                <h2 class="hand-heading text-2xl font-bold mb-2">You're In!</h2>
+                <p class="text-lg">Click the link or enter the code here to access your dashboard instantly.</p>
+            </div>
+        </div>
+
+        <!-- CTA Button -->
+        <div class="mt-10">
+            <a href="https://discord.com/app" target="_blank" class="sketchy-btn bg-[#5865F2] text-white text-2xl px-10 py-3">
+                🚀 Open Discord
+            </a>
+        </div>
+
+        <!-- Error Note -->
+        {% if error %}
+        <div class="mt-6 sketchy-box hard-shadow paper-pink p-5 tilt-3">
+            <p class="font-bold text-xl text-white">⚠️ {{ error }}</p>
+            <p class="text-lg mt-1">Please request a new code using <span class="font-bold">/login</span>.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

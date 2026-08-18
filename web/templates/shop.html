@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Gallery — Discord Bot Dashboard{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+{% endblock %}
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row items-center justify-between mb-6 gap-4">
+        <h1 class="hand-heading text-5xl md:text-6xl font-bold tilt-2 text-white">Image Gallery</h1>
+        <div class="sketchy-box hard-shadow paper-yellow px-6 py-3 tilt-1 flex items-center gap-3">
+            <span class="text-3xl">🪙</span>
+            <span class="hand-heading text-3xl font-bold" style="color:var(--coin)" id="navCoinBalance">{% if user.hide_balance %}••••{% else %}{{ "{:,}".format(user.coins) }}{% endif %}</span>
+        </div>
+    </div>
+
+    <div class="sketchy-box hard-shadow paper-green p-6 tilt-1 mb-8">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <h2 class="hand-heading text-3xl font-bold text-white">✨ Earn Coins</h2>
+            <span class="sketchy-box px-3 py-1 text-sm font-bold tilt-3 text-black" style="background:var(--success)">Free · In Discord</span>
+        </div>
+        <p class="mb-5" style="color:var(--text-muted)">No paid packs. Earn coins the old way — chat, hop in voice, and claim your daily.</p>
+        <div class="earn-grid">
+            <div class="earn-card">
+                <h3 class="hand-heading text-xl">📅 Daily Reward</h3>
+                <p>Claim 500–1,500 coins every 24 hours from Discord or right here.</p>
+                <span class="earn-card__cmd">/daily</span>
+                <button type="button" id="claimDailyBtn" class="sketchy-btn sketchy-btn--success text-sm mt-3 w-full">Claim on Web</button>
+            </div>
+            <div class="earn-card">
+                <h3 class="hand-heading text-xl">💬 Chat XP</h3>
+                <p>Send messages in the server. You earn coins + XP on a short cooldown.</p>
+                <span class="earn-card__cmd">+5 coins / message</span>
+            </div>
+            <div class="earn-card">
+                <h3 class="hand-heading text-xl">🔊 Voice AFK</h3>
+                <p>Stay unmuted in a voice channel. The bot ticks coins while you're active.</p>
+                <span class="earn-card__cmd">Voice lounge</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="category-tabs-wrap">
+        <div class="category-tabs" id="categoryTabs" role="tablist" aria-label="Gallery categories"></div>
+    </div>
+
+    <div id="galleryStatus" class="text-center text-sm mb-4 hidden" style="color:var(--text-muted)"></div>
+    <div class="masonry-grid" id="masonryGrid"></div>
+
+    <div id="emptyState" class="text-center py-16 hidden">
+        <div class="sketchy-box hard-shadow paper-pink inline-block p-10 tilt-2">
+            <div class="text-6xl mb-4">🖼️</div>
+            <h3 class="hand-heading text-3xl font-bold mb-2 text-white" id="emptyTitle">No Images Yet</h3>
+            <p class="text-xl coming-soon-note" id="emptyCopy">This category is empty or not configured.</p>
+        </div>
+    </div>
+
+    <div id="loadMoreWrap" class="hidden text-center mt-8 mb-4">
+        <button type="button" id="loadMoreBtn" class="sketchy-btn sketchy-btn--ghost text-xl px-8 py-2 text-white">Load Older Images</button>
+    </div>
+    <div id="loadSentinel" class="load-sentinel"></div>
+</div>
+
+<div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightboxTitle">
+    <div class="lightbox__overlay"></div>
+    <div class="lightbox__panel">
+        <div class="lightbox__content">
+            <div class="lightbox__header">
+                <div>
+                    <h2 class="hand-heading text-2xl font-bold text-white" id="lightboxTitle">Preview</h2>
+                    <p class="text-sm mt-1" style="color:var(--text-muted)" id="lightboxSubtitle"></p>
+                </div>
+                <button type="button" id="closeLightbox" class="sketchy-btn sketchy-btn--danger px-3 py-1">✕</button>
+            </div>
+            <div class="lightbox__body">
+                <div>
+                    <div class="cropper-area">
+                        <img id="cropperImage" src="" alt="Crop target" referrerpolicy="no-referrer">
+                    </div>
+                    <div class="gif-live-wrap">
+                        <img id="gifLiveImage" src="" alt="Animated GIF" referrerpolicy="no-referrer">
+                    </div>
+                    <div class="mt-3 flex flex-wrap gap-2 cropper-tools">
+                        <button type="button" onclick="Gallery.rotateCrop(-90)" class="sketchy-btn text-sm px-3 py-1 sketchy-btn--ghost text-white">↺ Rotate</button>
+                        <button type="button" onclick="Gallery.rotateCrop(90)" class="sketchy-btn text-sm px-3 py-1 sketchy-btn--ghost text-white">↻ Rotate</button>
+                        <button type="button" onclick="Gallery.resetCrop()" class="sketchy-btn text-sm px-3 py-1 sketchy-btn--ghost text-white">Reset</button>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-4">
+                    <div class="preview-panel">
+                        <h3 class="hand-heading text-lg font-bold mb-3 text-white">Live Preview</h3>
+                        <div class="flex justify-center">
+                            <div id="previewFrame" class="preview-frame preview-frame--circle">
+                                <div id="cropperPreviewInner" class="w-full h-full overflow-hidden"></div>
+                            </div>
+                        </div>
+                        <p class="text-center text-sm mt-2" style="color:var(--text-muted)" id="previewDimensions">512 × 512</p>
+                    </div>
+                    <div class="preview-panel">
+                        <div class="flex justify-between mb-2 text-white">
+                            <span>Price</span>
+                            <span class="font-bold" style="color:var(--coin)">🪙 <span id="modalPrice">0</span></span>
+                        </div>
+                        <div class="flex justify-between mb-4 text-white">
+                            <span>Balance</span>
+                            <span id="modalBalance">{{ "{:,}".format(user.coins) }}</span>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <button type="button" id="purchaseBtn" class="sketchy-btn sketchy-btn--success w-full">🛒 Purchase & Save</button>
+                            <button type="button" id="downloadBtn" class="sketchy-btn sketchy-btn--accent w-full">⬇ Download</button>
+                            <button type="button" id="copyUrlBtn" class="sketchy-btn sketchy-btn--ghost w-full text-white">🔗 Copy URL</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        Gallery.init({
+            userCoins: {{ user.coins | default(0) }},
+            hideBalance: {{ 'true' if user.hide_balance else 'false' }}
+        });
+        const socket = io();
+        socket.on('purchase_complete', (data) => Gallery.showToast(data.message, 'success'));
+        socket.on('inventory_update', (data) => Gallery.showToast('Inventory updated!', 'info'));
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Login — Discord Bot Dashboard{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto mt-16">
+    <!-- Login Note -->
+    <div class="sketchy-box hard-shadow paper-yellow p-10 tilt-2 relative text-center">
+        <div class="tape"></div>
+        
+        <h1 class="hand-heading text-5xl font-bold mb-2 text-white">🔐 Login</h1>
+        <p class="text-2xl mb-8 text-white">
+            Enter the 6-digit code you received from the bot.
+        </p>
+
+        <!-- Login Form -->
+        <form method="POST" action="{{ url_for('login_page') }}" class="space-y-6">
+            <div>
+                <label class="block hand-heading text-2xl font-bold mb-2 text-left text-white">Login Code</label>
+                <input 
+                    type="text" 
+                    name="code" 
+                    maxlength="6" 
+                    placeholder="ABC123"
+                    class="sketchy-input w-full text-center text-3xl tracking-[0.5em] font-bold uppercase bg-white text-black placeholder-gray-400"
+                    autocomplete="off"
+                    autofocus
+                    required
+                >
+            </div>
+            
+            <button type="submit" class="sketchy-btn bg-[#5865F2] text-white text-2xl px-12 py-3 w-full">
+                🚀 Enter Dashboard
+            </button>
+        </form>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="mt-6 sketchy-box hard-shadow p-4 tilt-1 
+                    {% if category == 'error' %}paper-pink{% else %}paper-green{% endif %}">
+                    <p class="text-xl font-bold {% if category == 'error' %}text-red-700{% else %}text-green-800{% endif %}">
+                        {{ message }}
+                    </p>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="mt-8 text-gray-600 text-xl">
+            <p>Don't have a code?</p>
+            <p class="mt-1">Type <span class="inline-block bg-white px-2 py-0.5 sketchy-box tilt-3 font-bold">/login</span> in Discord.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

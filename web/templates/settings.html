@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Settings — ROME Hub{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <h1 class="hand-heading text-5xl font-bold mb-8 tilt-1 text-white">Settings</h1>
+
+    <div class="settings-grid">
+        <aside class="sketchy-box hard-shadow paper-blue p-6 tilt-2 text-white">
+            <img
+                src="{{ user.avatar_url or url_for('static', filename='favicon.svg') }}"
+                alt="Discord avatar"
+                class="w-28 h-28 rounded-full mx-auto mb-4"
+                style="border:2.5px solid #f0f0f5;object-fit:cover"
+                referrerpolicy="no-referrer"
+            >
+            <p class="hand-heading text-2xl text-center">{{ user.display_name or user.username or 'Member' }}</p>
+            <p class="text-center mt-1" style="color:var(--text-muted)">@{{ user.username or 'unknown' }}</p>
+            <p class="text-center mt-4 text-sm" style="color:var(--text-muted)">Discord ID</p>
+            <p class="settings-id text-center mt-1">{{ user.user_id }}</p>
+        </aside>
+
+        <form id="settingsForm" class="sketchy-box hard-shadow p-6 tilt-1" style="background:var(--bg-surface)">
+            <h2 class="hand-heading text-2xl mb-4 text-white">Discord Profile</h2>
+            <div class="grid md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="field-label hand-heading">Display Name</label>
+                    <input class="settings-input" value="{{ user.display_name or '' }}" readonly>
+                </div>
+                <div>
+                    <label class="field-label hand-heading">Username</label>
+                    <input class="settings-input" value="{{ user.username or '' }}" readonly>
+                </div>
+            </div>
+
+            <h2 class="hand-heading text-2xl mb-4 text-white">Dashboard Preferences</h2>
+            <div class="mb-5">
+                <label class="field-label hand-heading" for="bioInput">Bio / Status</label>
+                <textarea id="bioInput" class="settings-textarea" maxlength="280" placeholder="A short note about you...">{{ user.bio or '' }}</textarea>
+            </div>
+
+            <div class="mb-5">
+                <p class="field-label hand-heading">Accent Color</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2" id="themeSwatches">
+                    <button type="button" class="theme-swatch{% if user.accent_theme == 'default' or not user.accent_theme %} active{% endif %}" data-theme="default">Blue</button>
+                    <button type="button" class="theme-swatch{% if user.accent_theme == 'purple' %} active{% endif %}" data-theme="purple">Purple</button>
+                    <button type="button" class="theme-swatch{% if user.accent_theme == 'green' %} active{% endif %}" data-theme="green">Green</button>
+                    <button type="button" class="theme-swatch{% if user.accent_theme == 'crimson' %} active{% endif %}" data-theme="crimson">Crimson</button>
+                </div>
+            </div>
+
+            <label class="check-row mb-3">
+                <input type="checkbox" id="hideBalance" {% if user.hide_balance %}checked{% endif %}>
+                Hide coin balance in the header
+            </label>
+            <label class="check-row mb-6">
+                <input type="checkbox" id="showToasts" {% if user.show_toasts %}checked{% endif %}>
+                Show live toasts for purchases
+            </label>
+
+            <button type="submit" class="sketchy-btn sketchy-btn--accent">💾 Save Settings</button>
+            <p id="settingsStatus" class="mt-3" style="color:var(--text-muted)"></p>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const form = document.getElementById('settingsForm');
+    let accentTheme = '{{ user.accent_theme or "default" }}';
+    document.querySelectorAll('.theme-swatch').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            accentTheme = btn.dataset.theme;
+            document.body.setAttribute('data-accent', accentTheme);
+            document.querySelectorAll('.theme-swatch').forEach((el) => el.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const status = document.getElementById('settingsStatus');
+        status.textContent = 'Saving…';
+        const res = await fetch('/api/user/settings', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                bio: document.getElementById('bioInput').value,
+                hide_balance: document.getElementById('hideBalance').checked,
+                show_toasts: document.getElementById('showToasts').checked,
+                accent_theme: accentTheme,
+            }),
+        });
+        const data = await res.json();
+        status.textContent = data.message || (data.success ? 'Saved.' : 'Could not save.');
+        status.style.color = data.success ? 'var(--success)' : 'var(--danger)';
+    });
+</script>
+{% endblock %}

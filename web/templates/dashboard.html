@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Discord Bot Dashboard{% endblock %}
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <h1 class="hand-heading text-6xl font-bold mb-10 tilt-1 inline-block text-white">My Dashboard</h1>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
+        
+        <!-- Coins -->
+        <div class="sketchy-box hard-shadow paper-yellow p-8 tilt-2 relative">
+            <div class="tape"></div>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="hand-heading text-3xl font-bold">Coins</h2>
+                <div class="w-12 h-12 bg-[#fbbf24] sketchy-box flex items-center justify-center tilt-3 text-3xl">
+                    🪙
+                </div>
+            </div>
+            <p class="text-6xl font-bold" style="color:var(--coin)">{{ "{:,}".format(user.coins) }}</p>
+            <p class="mt-2 text-xl" style="color:var(--text-muted)">Spend them in the gallery!</p>
+        </div>
+
+        <!-- XP -->
+        <div class="sketchy-box hard-shadow paper-blue p-8 tilt-1 relative">
+            <div class="tape"></div>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="hand-heading text-3xl font-bold">XP</h2>
+                <div class="w-12 h-12 bg-[#60a5fa] sketchy-box flex items-center justify-center tilt-2 text-3xl">
+                    ⭐
+                </div>
+            </div>
+            <p class="text-6xl font-bold text-white">{{ "{:,}".format(user.xp) }}</p>
+            <p class="mt-2 text-xl" style="color:var(--text-muted)">Keep chatting to level up!</p>
+        </div>
+
+        <!-- Inventory -->
+        <div class="sketchy-box hard-shadow paper-green p-8 tilt-3 relative">
+            <div class="tape"></div>
+            <div class="flex items-center justify-between mb-3">
+                <h2 class="hand-heading text-3xl font-bold">Items</h2>
+                <div class="w-12 h-12 bg-[#4ade80] sketchy-box flex items-center justify-center tilt-1 text-3xl">
+                    🎒
+                </div>
+            </div>
+            <p class="text-6xl font-bold text-white">{{ total_items }}</p>
+            <p class="mt-2 text-xl" style="color:var(--text-muted)">{{ avatar_count }} avatars, {{ banner_count }} banners</p>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="flex flex-wrap gap-4 mb-12">
+        <a href="{{ url_for('shop') }}" class="sketchy-btn sketchy-btn--accent px-8 py-3">
+            🛒 Browse Gallery
+        </a>
+        <a href="{{ url_for('settings_page') }}" class="sketchy-btn sketchy-btn--ghost text-white px-8 py-3">
+            ⚙️ Settings
+        </a>
+    </div>
+
+    <!-- Recent Purchases -->
+    {% if inventory %}
+    <div class="sketchy-box hard-shadow paper-purple p-6 tilt-1 relative">
+        <div class="tape"></div>
+        <h2 class="hand-heading text-3xl font-bold mb-6">Recent Purchases</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-5">
+            {% for item in inventory[:12] %}
+            <div class="sketchy-box-alt p-2 hard-shadow tilt-{% if loop.index % 3 == 0 %}1{% elif loop.index % 3 == 1 %}2{% else %}3{% endif %}" style="background:var(--bg-elevated)">
+                <div class="sketchy-box overflow-hidden mb-2">
+                    <img src="{{ item.local_file_path | item_image_url }}" alt="{{ item.item_type }}" class="w-full h-28 object-cover" referrerpolicy="no-referrer">
+                </div>
+                <p class="text-center text-sm font-bold capitalize hand-heading text-lg text-white">{{ item.item_type }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="sketchy-box hard-shadow paper-orange p-8 tilt-2 text-center">
+        <p class="hand-heading text-2xl text-white">No purchases yet! Visit the <a href="{{ url_for('shop') }}" class="underline font-bold" style="color:var(--accent)">Gallery</a> to unlock your first avatar or banner.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
