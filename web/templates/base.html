@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Discord Bot Dashboard{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col" data-accent="{{ (nav_user.accent_theme if nav_user else 'default') or 'default' }}">
+
+    <nav class="site-nav sketchy-box hard-shadow tilt-1 flex flex-col md:flex-row items-center justify-between">
+        <a href="{{ url_for('dashboard') if session.user_id else url_for('index') }}" class="brand-lockup mb-2 md:mb-0">
+            <div class="brand-mark sketchy-box tilt-2" aria-hidden="true">RM</div>
+            <span class="brand-name hand-heading">
+                <span class="brand-name__title">ROME Hub</span>
+                <span class="brand-name__sub">Discord Control Panel</span>
+            </span>
+        </a>
+        <div class="flex items-center gap-5 hand-heading text-xl">
+            {% if session.user_id and nav_user %}
+            <a href="{{ url_for('dashboard') }}" class="nav-link hidden sm:inline">Dashboard</a>
+            <a href="{{ url_for('shop') }}" class="nav-link hidden sm:inline">Gallery</a>
+            <div class="nav-user">
+                {% if not nav_user.hide_balance %}
+                <span class="hidden md:inline-flex items-center gap-1 sketchy-box px-3 py-1" style="background:var(--paper-yellow);color:var(--coin)">
+                    🪙 {{ "{:,}".format(nav_user.coins) }}
+                </span>
+                {% endif %}
+                <button type="button" id="navAvatarBtn" class="nav-avatar-btn" aria-haspopup="true" aria-expanded="false" aria-label="Open account menu">
+                    <img
+                        src="{{ nav_user.avatar_url or url_for('static', filename='favicon.svg') }}"
+                        alt="{{ nav_user.display_name or nav_user.username or 'Profile' }}"
+                        referrerpolicy="no-referrer"
+                    >
+                </button>
+                <div id="navDropdown" class="nav-dropdown" role="menu">
+                    <div class="nav-dropdown__user">
+                        <p class="nav-dropdown__name hand-heading">{{ nav_user.display_name or nav_user.username or 'Member' }}</p>
+                        <p class="nav-dropdown__id">ID {{ nav_user.user_id }}</p>
+                    </div>
+                    <a href="{{ url_for('settings_page') }}" role="menuitem">⚙️ Settings</a>
+                    <a href="{{ url_for('dashboard') }}" role="menuitem">🎛️ Dashboard</a>
+                    <a href="{{ url_for('support_page') }}" role="menuitem">📖 Support & Docs</a>
+                    <a href="{{ url_for('logout') }}" class="nav-dropdown__logout" role="menuitem">🚪 Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('login_page') }}" class="sketchy-btn sketchy-btn--accent text-lg px-4 py-1">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="flex-grow p-5 md:p-10">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center py-8 hand-heading text-xl relative" style="color:var(--text-muted)">
+        <div class="inline-block sketchy-box px-6 py-2 tilt-3" style="background:var(--bg-surface);color:var(--text-primary)">
+            ROME Hub v3.0 — Legendary Edition
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
